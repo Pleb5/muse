@@ -1,0 +1,31 @@
+# Ignore Rust compilation artifacts
+/target/
+/build/
+**/*.rs.bk
+
+# Ignore Rust Cargo files
+/Cargo.lock
+
+# Ignore build artifacts for various platforms
+/debug/
+release/
+*.dSYM          # macOS debug symbols
+*.stackdump     # MinGW stack traces
+*.exe           # Windows executables
+*.exe~          # Backup executables
+*.out           # Compiled output files
+
+# Ignore generated documentation
+/doc/
+
+# Ignore Rustup and Cargo's package download directories
+/.cargo/
+/.cargo-lock/
+
+# Ignore temporary files
+*.tmp
+*.temp
+*.swp           # Vim swap files
+*.swo           # Vim temporary files
+*.bak           # Backup files
+*~
