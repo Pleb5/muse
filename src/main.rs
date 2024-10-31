@@ -1,27 +1,28 @@
 use nostr_sdk::prelude::*;
 use std::time::Duration;
 
+use std::fs::File;
+use std::io::{self, Read, Write};
+
 mod config;
+
+
+enum ClientBuildOption {
+    WithNsec(SecretKey),
+    NoNsec,
+}
 
 #[tokio::main]
 async fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
 
     // let secret_key = SecretKey::from_bech32(config::FIATMAXI_NSEC)?;
-    // let my_keys = Keys::new(secret_key);
-    //
-    // let client = Client::new(&my_keys);
-    let opts = Options::new()
-        .gossip(true)
-        .connection_timeout(Some(config::RELAY_CONNECTION_TIMEOUT))
-        .send_timeout(Some(config::PUBLISH_TIMEOUT));
 
-    let client = Client::builder().opts(opts).build();
+    let client = create_client(ClientBuildOption::NoNsec);
     
-    client.add_relay("wss://relay.damus.io").await?;
-    client.add_relay("wss://relay.primal.net").await?;
-    // client.add_relay("wss://relay.nostr.band").await?;
-    client.add_relay("wss://purplepag.es").await?;
+    for &relay_url in &config::BOOTSTRAP_RELAYS {
+        client.add_relay(relay_url.to_string()).await?;
+    }
 
     client.connect().await;
 
@@ -110,4 +111,22 @@ async fn main() -> Result<()> {
     //     .await?;
 
     Ok(())
+}
+
+fn create_client(option: ClientBuildOption) -> Client {
+    let opts = Options::new()
+        .gossip(true)
+        .connection_timeout(Some(config::RELAY_CONNECTION_TIMEOUT))
+        .send_timeout(Some(config::PUBLISH_TIMEOUT));
+
+    match option {
+        ClientBuildOption::WithNsec(secret_key) => {
+            let my_keys = Keys::new(secret_key);
+
+            Client::with_opts(&my_keys, opts)
+        }
+        ClientBuildOption::NoNsec => {
+            Client::builder().opts(opts).build()
+        }
+    }
 }

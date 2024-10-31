@@ -8,3 +8,9 @@ pub const FIVE_HEXPUBKEY: &str =
 pub const RELAY_CONNECTION_TIMEOUT: Duration = Duration::from_secs(4);
 pub const PUBLISH_TIMEOUT: Duration = Duration::from_secs(4);
 
+pub const BOOTSTRAP_RELAYS: [&str; 4] = [
+    "wss://relay.damus.io",
+    "wss://relay.primal.net",
+    "wss://relay.nostr.band",
+    "wss://purplepag.es",
+];
