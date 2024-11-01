@@ -1,3 +1,7 @@
+# Custom ignores
+five_all_kind1_events.txt
+
+
 # Ignore Rust compilation artifacts
 /target/
 /build/
