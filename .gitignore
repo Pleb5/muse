@@ -1,5 +1,6 @@
 # Custom ignores
 five_all_kind1_events.txt
+five_follows.txt
 
 
 # Ignore Rust compilation artifacts
