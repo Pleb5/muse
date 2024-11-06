@@ -7,7 +7,7 @@ use tokio::fs::File;
 use tokio::io::AsyncWriteExt;
 
 
-pub async fn get_kind1_events_of_user(
+pub async fn fetch_kind1_events_of_user(
     user_pubkey: &PublicKey
 ) -> Result<Vec<Event>, Error> {
     let filter = Filter::new()
