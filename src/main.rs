@@ -4,8 +4,9 @@ use utils::{fetch_follows_of_pubkey, save_follows};
 mod client;
 mod config;
 mod utils;
+mod wot;
 
-use config::{FIVE_HEXPUBKEY, FIATMAXI_NSEC};
+use config::{FIATMAXI_NSEC, FIVE_HEXPUBKEY, SATSHOOT_HEXPUBKEY};
 use client::{initialize_client_singleton, get_client, ClientBuildOption};
 
 #[tokio::main]
@@ -17,6 +18,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     initialize_client_singleton(ClientBuildOption::NoNsec);
 
     let five_pubkey = PublicKey::from_hex(FIVE_HEXPUBKEY).unwrap();
+    let satshoot_pubkey = PublicKey::from_hex(SATSHOOT_HEXPUBKEY).unwrap();
 
     for &relay_url in &config::BOOTSTRAP_RELAYS {
         get_client().add_relay(relay_url.to_string()).await?;
@@ -24,13 +26,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     get_client().connect().await;
 
-    match fetch_follows_of_pubkey(&five_pubkey).await {
+    match fetch_follows_of_pubkey(&satshoot_pubkey).await {
         Ok(follows) => {
-            println!(">>>>>>> Follows of Five: <<<<<<<");
-            for (index, pubkey) in follows.iter().enumerate() {
-                println!("{}.\n{}", index, pubkey);
-            }
-            let file_name = "five_follows.txt";
+            let file_name = "satshoot_follows.txt";
             println!(">>>>>>> Saving follows ... in File: {} <<<<<<<< ", file_name);
 
             save_follows(&follows, file_name).await?;
