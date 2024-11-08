@@ -1,12 +1,12 @@
 use nostr_sdk::prelude::*;
-use utils::{fetch_follows_of_pubkey, save_pubkeys_in_file};
+use utils::{ read_pubkeys_from_file };
 
 mod client;
 mod config;
 mod utils;
 mod wot;
 
-use config::{FIATMAXI_NSEC, FIVE_HEXPUBKEY, SATSHOOT_HEXPUBKEY};
+use config::{ SATSHOOT_HEXPUBKEY};
 use client::{initialize_client_singleton, get_client, ClientBuildOption};
 use wot::{update_wot, WOT};
 
@@ -14,11 +14,8 @@ use wot::{update_wot, WOT};
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt::init();
 
-    // let secret_key = SecretKey::from_bech32(FIATMAXI_NSEC)?;
-
     initialize_client_singleton(ClientBuildOption::NoNsec);
 
-    let five_pubkey = PublicKey::from_hex(FIVE_HEXPUBKEY).unwrap();
     let satshoot_pubkey = PublicKey::from_hex(SATSHOOT_HEXPUBKEY).unwrap();
 
     for &relay_url in &config::BOOTSTRAP_RELAYS {
@@ -27,11 +24,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     get_client().connect().await;
 
-    update_wot(&satshoot_pubkey).await?;
+    println!("Reading WoT from file...");
 
-    let wot_vec: Vec<PublicKey> = WOT.iter().map(|pk| *pk).collect();
+    match read_pubkeys_from_file("satshoot_wot").await {
+        Ok(wot_vec) => {
+            for public_key in wot_vec {
+                WOT.insert(public_key);
+            }
+        },
 
-    save_pubkeys_in_file(&wot_vec, "satshoot_wot").await?;
+        Err(e) => eprintln!("Error: {:?}", e)
+        
+    }
+
+    println!("WOT size: {}", WOT.len());
 
     Ok(())
 }
