@@ -28,10 +28,25 @@ pub async fn update_wot(user_pubkey: &PublicKey) -> Result<(), Error> {
     let mut network_wot_scores: HashMap<PublicKey, i32> = HashMap::new();
 
     let mut authors = vec![user_pubkey.clone()];
-    // TODO: follows of user should be saved here and add to authors vector before second fetch
-    //
-    let user_wot_events_map = fetch_wot_events_of_users(&authors)
+
+    let user_wot_events_map = fetch_wot_events_of_users(authors.clone())
         .await?;
+
+    authors.clear();
+
+    if let Some(follow_events) = user_wot_events_map.get(KEY_TO_FOLLOWS) {
+        for follow_event in follow_events {
+            for tag in follow_event.tags.iter() {
+                if let Some(TagStandard::PublicKey {
+                    public_key,
+                    .. 
+                }) = tag.clone().to_standardized()
+                {
+                    authors.push(public_key);
+                }
+            }
+        }
+    }
 
     update_wot_scores(
         &mut network_wot_scores,
@@ -41,30 +56,30 @@ pub async fn update_wot(user_pubkey: &PublicKey) -> Result<(), Error> {
         DIRECT_REPORT_WOT_SCORE
     );
 
-
-    // TODO: update authors before this call!
-    let user_wot_events_map = fetch_wot_events_of_users(&authors)
+    let follows_wot_events_map = fetch_wot_events_of_users(authors.clone())
         .await?;
 
     update_wot_scores(
         &mut network_wot_scores,
-        user_wot_events_map,
-        DIRECT_FOLLOW_WOT_SCORE,
-        DIRECT_MUTE_WOT_SCORE,
-        DIRECT_REPORT_WOT_SCORE
+        follows_wot_events_map,
+        INDIRECT_FOLLOW_WOT_SCORE,
+        INDIRECT_MUTE_WOT_SCORE,
+        INDIRECT_REPORT_WOT_SCORE
     );
 
     for (public_key, wot_score) in network_wot_scores {
-        // TODO: update global wot set if wot score of pubkey above min wot
+        if wot_score >= MIN_WOT_SCORE {
+            WOT.insert(public_key);
+        }
     }
 
     Ok(())
 }
 
 pub async fn fetch_wot_events_of_users(
-    user_pubkeys: &[PublicKey]
-) -> Result<HashMap<&str, Vec<Event>>, Error> {
-    let mut wot_events_map: HashMap<&str, Vec<Event>> = HashMap::new();
+    user_pubkeys: Vec<PublicKey>
+) -> Result<HashMap<String, Vec<Event>>, Error> {
+    let mut wot_events_map: HashMap<String, Vec<Event>> = HashMap::new();
 
     let filter: Filter = Filter::new()
         .authors(user_pubkeys.iter().cloned())
@@ -82,17 +97,17 @@ pub async fn fetch_wot_events_of_users(
             for wot_event in wot_events {
                 match wot_event.kind {
                     Kind::ContactList => wot_events_map
-                        .entry(KEY_TO_FOLLOWS)
+                        .entry(KEY_TO_FOLLOWS.to_string())
                         .or_insert(Vec::new())
                         .push(wot_event),
 
                     Kind::MuteList => wot_events_map
-                        .entry(KEY_TO_MUTES)
+                        .entry(KEY_TO_MUTES.to_string())
                         .or_insert(Vec::new())
                         .push(wot_event),
 
                     Kind::Reporting => wot_events_map
-                        .entry(KEY_TO_REPORTS)
+                        .entry(KEY_TO_REPORTS.to_string())
                         .or_insert(Vec::new())
                         .push(wot_event),
 
@@ -107,7 +122,7 @@ pub async fn fetch_wot_events_of_users(
 
 fn update_wot_scores(
     network_wot_scores: &mut HashMap<PublicKey, i32>,
-    wot_events_map: HashMap<&str, Vec<Event>>,
+    wot_events_map: HashMap<String, Vec<Event>>,
     follow_wot_score: i32,
     mute_wot_score: i32,
     report_wot_score: i32

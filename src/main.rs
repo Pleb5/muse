@@ -1,5 +1,5 @@
 use nostr_sdk::prelude::*;
-use utils::{fetch_follows_of_pubkey, save_follows};
+use utils::{fetch_follows_of_pubkey, save_pubkeys_in_file};
 
 mod client;
 mod config;
@@ -8,6 +8,7 @@ mod wot;
 
 use config::{FIATMAXI_NSEC, FIVE_HEXPUBKEY, SATSHOOT_HEXPUBKEY};
 use client::{initialize_client_singleton, get_client, ClientBuildOption};
+use wot::{update_wot, WOT};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -26,15 +27,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     get_client().connect().await;
 
-    match fetch_follows_of_pubkey(&satshoot_pubkey).await {
-        Ok(follows) => {
-            let file_name = "satshoot_follows.txt";
-            println!(">>>>>>> Saving follows ... in File: {} <<<<<<<< ", file_name);
+    update_wot(&satshoot_pubkey).await?;
 
-            save_follows(&follows, file_name).await?;
-        },
-        Err(e) => eprintln!("Could not fetch follows of five: {}",e.to_string())
-    }
+    let wot_vec: Vec<PublicKey> = WOT.iter().map(|pk| *pk).collect();
+
+    save_pubkeys_in_file(&wot_vec, "satshoot_wot").await?;
 
     Ok(())
 }

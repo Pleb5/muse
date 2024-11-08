@@ -4,7 +4,7 @@ use crate::client::get_client;
 
 use std::time::Duration;
 use tokio::fs::File;
-use tokio::io::AsyncWriteExt;
+use tokio::io::{ AsyncWriteExt, AsyncBufReadExt, BufReader };
 
 
 pub async fn fetch_kind1_events_of_user(
@@ -83,18 +83,35 @@ pub async fn fetch_follows_of_pubkey(
     }
 }
 
-pub async fn save_follows(
+pub async fn save_pubkeys_in_file(
     follows: &Vec<PublicKey>,
     file_name: &str
 ) -> Result<()> {
 
     let mut file = File::create(file_name).await?;
 
-    for (index, pubkey) in follows.into_iter().enumerate() {
+    for pubkey in follows.into_iter() {
         file.write_all(
-            format!("{}.\n{}\n", index, pubkey)
+            format!("{}\n", pubkey)
             .as_bytes()
         ).await?;
     }
     Ok(())
+}
+
+pub async fn read_pubkeys_from_file(path: &str) -> Result<Vec<PublicKey>> {
+    let mut pubkey_result: Vec<PublicKey> = Vec::new();
+
+    let file = File::open(path).await?;
+    let reader = BufReader::new(file);
+
+    let mut lines = reader.lines();
+
+    while let Some(line) = lines.next_line().await? {
+        if let Ok(public_key) = PublicKey::from_hex(line) {
+            pubkey_result.push(public_key);
+        }
+    }
+
+    Ok(pubkey_result)
 }
