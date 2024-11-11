@@ -1,4 +1,7 @@
 use nostr_sdk::prelude::*;
+use utils::save_kind1_events_in_file;
+
+use std::time::Duration;
 
 mod client;
 mod config;
@@ -42,6 +45,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // }
 
     println!("WOT size: {}", WOT.len());
+
+    println!("fetching kind1s of WoT...");
+
+    let filter = Filter::new()
+        .authors(WOT.iter().map(|p| p.clone()))
+        .kind(Kind::TextNote)
+        .since(Timestamp::now() - Duration::from_secs(30 * 24 * 60 * 60));
+
+    let kind1_events = get_client()
+        .fetch_events(vec![filter], Some(Duration::from_secs(15)))
+        .await?;
+
+    save_kind1_events_in_file(kind1_events, "SatShoot_WoT_ALL_kind1s.txt").await?;
+
 
     Ok(())
 }
