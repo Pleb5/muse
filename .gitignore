@@ -3,6 +3,7 @@ five_all_kind1_events.txt
 five_follows.txt
 satshoot_follows.txt
 satshoot_wot
+satshoot_wot_all_kind1s.txt
 
 
 # Ignore Rust compilation artifacts
