@@ -1,14 +1,14 @@
 use nostr_sdk::prelude::*;
-use utils::{ read_pubkeys_from_file };
 
 mod client;
 mod config;
 mod utils;
 mod wot;
 
-use config::{ SATSHOOT_HEXPUBKEY};
-use client::{initialize_client_singleton, get_client, ClientBuildOption};
-use wot::{update_wot, WOT};
+use crate::client::{get_client, initialize_client_singleton, ClientBuildOption};
+use crate::config::SATSHOOT_HEXPUBKEY;
+use crate::utils::{read_pubkeys_from_file, save_pubkeys_in_file};
+use crate::wot::{update_wot, WOT};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -24,22 +24,24 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     get_client().connect().await;
 
-    println!("Reading WoT from file...");
+    let now = Instant::now();
+    update_wot(&satshoot_pubkey).await?;
+    println!("WOT updated in {:.2} secs", now.elapsed().as_secs_f32());
 
-    match read_pubkeys_from_file("satshoot_wot").await {
-        Ok(wot_vec) => {
-            for public_key in wot_vec {
-                WOT.insert(public_key);
-            }
-        },
-
-        Err(e) => eprintln!("Error: {:?}", e)
-        
-    }
+    // println!("Reading WoT from file...");
+    //
+    // match read_pubkeys_from_file("satshoot_wot").await {
+    //     Ok(wot_vec) => {
+    //         for public_key in wot_vec {
+    //             WOT.insert(public_key);
+    //         }
+    //     },
+    //
+    //     Err(e) => eprintln!("Error: {:?}", e)
+    //
+    // }
 
     println!("WOT size: {}", WOT.len());
 
     Ok(())
 }
-
-
