@@ -6,7 +6,7 @@ use std::time::Duration;
 use tokio::fs::File;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 
-pub async fn fetch_kind1_events_of_user(user_pubkey: &PublicKey) -> Result<Events, Error> {
+pub async fn fetch_kind1_events_of_user(user_pubkey: &PublicKey) -> Result<Events> {
     let filter = Filter::new()
         .authors([PublicKey::from_hex(user_pubkey.to_hex()).unwrap()])
         .kind(Kind::TextNote);
@@ -17,7 +17,7 @@ pub async fn fetch_kind1_events_of_user(user_pubkey: &PublicKey) -> Result<Event
     Ok(events)
 }
 
-pub async fn save_kind1_events_in_file(events: &[Event], file_name: &str) -> Result<()> {
+pub async fn save_kind1_events_in_file(events: Events, file_name: &str) -> Result<()> {
     let mut file = File::create(file_name).await?;
 
     for (index, event) in events.iter().enumerate() {
@@ -27,7 +27,7 @@ pub async fn save_kind1_events_in_file(events: &[Event], file_name: &str) -> Res
     Ok(())
 }
 
-pub async fn fetch_follows_of_pubkey(pubkey: &PublicKey) -> Result<Vec<PublicKey>, Error> {
+pub async fn fetch_follows_of_pubkey(pubkey: &PublicKey) -> Result<Vec<PublicKey>> {
     let filter: Filter = Filter::new()
         .authors(vec![*pubkey])
         .kind(Kind::ContactList)

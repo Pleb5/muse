@@ -19,7 +19,7 @@ const KEY_TO_REPORTS: &str = "reports";
 
 pub static WOT: Lazy<DashSet<PublicKey>> = Lazy::new(DashSet::new);
 
-pub async fn update_wot(user_pubkey: &PublicKey) -> Result<(), Error> {
+pub async fn update_wot(user_pubkey: &PublicKey) -> Result<()> {
     let mut network_wot_scores: HashMap<PublicKey, i32> = HashMap::new();
 
     let mut authors = vec![*user_pubkey];
@@ -67,7 +67,7 @@ pub async fn update_wot(user_pubkey: &PublicKey) -> Result<(), Error> {
 
 pub async fn fetch_wot_events_of_users(
     user_pubkeys: Vec<PublicKey>,
-) -> Result<HashMap<&'static str, Vec<Event>>, Error> {
+) -> Result<HashMap<&'static str, Vec<Event>>> {
     let mut wot_events_map: HashMap<&'static str, Vec<Event>> = HashMap::new();
 
     let filter: Filter = Filter::new()
