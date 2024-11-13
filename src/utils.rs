@@ -17,14 +17,23 @@ pub async fn fetch_kind1_events_of_user(user_pubkey: &PublicKey) -> Result<Event
     Ok(events)
 }
 
-pub async fn save_kind1_events_in_file(events: Events, file_name: &str) -> Result<()> {
+pub async fn save_kind1_events_in_file(
+    events: Events,
+    file_name: &str,
+    method: SavingMethod
+) -> Result<()> {
     let mut file = File::create(file_name).await?;
 
     for (index, event) in events.iter().enumerate() {
-        file.write_all(format!("{}.\n{}\n", index, event.as_json()).as_bytes())
+        file.write_all(format!("{}.\n{}\n", index, event.content).as_bytes())
             .await?;
     }
     Ok(())
+}
+
+pub enum SavingMethod {
+    JSON,
+    ContentOnly
 }
 
 pub async fn fetch_follows_of_pubkey(pubkey: &PublicKey) -> Result<Vec<PublicKey>> {

@@ -10,7 +10,7 @@ mod wot;
 
 use crate::client::{get_client, initialize_client_singleton, ClientBuildOption};
 use crate::config::SATSHOOT_HEXPUBKEY;
-use crate::utils::{read_pubkeys_from_file, save_pubkeys_in_file};
+use crate::utils::{read_pubkeys_from_file, save_pubkeys_in_file, SavingMethod};
 use crate::wot::{update_wot, WOT};
 
 #[tokio::main]
@@ -57,7 +57,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .fetch_events(vec![filter], Some(Duration::from_secs(15)))
         .await?;
 
-    save_kind1_events_in_file(kind1_events, "SatShoot_WoT_ALL_kind1s.txt").await?;
+    println!("Fetching kind1s Completed! Saving in file...");
+
+    save_kind1_events_in_file(
+        kind1_events,
+        "satshoot_wot_all_kind1s_content_only.txt",
+        SavingMethod::ContentOnly
+    ).await?;
+
+
 
 
     Ok(())
