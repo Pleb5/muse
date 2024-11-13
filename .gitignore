@@ -4,6 +4,7 @@ five_follows.txt
 satshoot_follows.txt
 satshoot_wot
 satshoot_wot_all_kind1s.txt
+satshoot_wot_all_kind1s_content_only.txt
 
 
 # Ignore Rust compilation artifacts
