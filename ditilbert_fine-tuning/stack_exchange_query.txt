@@ -1,0 +1,25 @@
+-- Fetching top 50k from these sources: 
+    -- StackOverflow (programming)
+    -- Super User (computer enthusiasts and power users)
+    -- Ask Ubuntu (Ubuntu users and developers)
+    -- Server Fault (system and network admins)
+    -- Unix (Linux, FreeBSD and Unix-like operating systems)
+    -- Electrical Engineering (electronics and electrical engineering)
+
+SELECT TOP 50000
+    Id,
+    Title,
+    Body,
+    Score,
+    CreationDate,
+    ViewCount,
+    AnswerCount,
+    CommentCount,
+    Tags,
+    PostTypeId
+FROM
+    Posts
+WHERE
+    PostTypeId = 1 -- This filters for only questions. Use PostTypeId = 2 for answers.
+ORDER BY
+    Score DESC
