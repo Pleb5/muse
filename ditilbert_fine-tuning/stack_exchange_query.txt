@@ -23,3 +23,45 @@ WHERE
     PostTypeId = 1 -- This filters for only questions. Use PostTypeId = 2 for answers.
 ORDER BY
     Score DESC
+
+
+-- For bitcoin.stackexchange.com the query must be more selective:
+SELECT TOP 10000
+    Id,
+    Title,
+    Body,
+    Score,
+    CreationDate,
+    ViewCount,
+    AnswerCount,
+    CommentCount,
+    Tags,
+    PostTypeId
+FROM
+    Posts
+WHERE
+    PostTypeId = 1 -- This filters for only questions. Use PostTypeId = 2 for answers.
+    AND (Tags LIKE '%<bitcoin-core>%' OR Tags LIKE '%<protocol>%' OR Tags LIKE '%<cryptography>%' OR Tags LIKE '%<bitcoind>%' OR Tags LIKE '%<bitcoin-cli>%' OR Tags LIKE '%<network>%' OR Tags LIKE '%<wallet>%' OR Tags LIKE '%<wallets>%' OR Tags LIKE '%<mining>%' OR Tags LIKE '%<script>%' OR Tags LIKE '%<security>%' OR Tags LIKE '%<protocol>%' OR Tags LIKE '%<api>%' OR Tags LIKE '%<bip>%' OR Tags LIKE '%<development>%' OR Tags LIKE '%<transactions>%' OR Tags LIKE '%<address>%' OR Tags LIKE '%<signature>%' OR Tags LIKE '%<lightning-network>%' OR Tags LIKE '%<ecdsa>%' OR Tags LIKE '%<schnorr-signatures>%' OR Tags LIKE '%<privacy>%' OR Tags LIKE '%<private-key>%' OR Tags LIKE '%<attack>%' OR Tags LIKE '%<coin-selection>%' OR Tags LIKE '%<coin-control>%' OR Tags LIKE '%<taproot>%' OR Tags LIKE '%<segregated-witness>%' OR Tags LIKE '%<mining-pools>%' OR Tags LIKE '%<mining>%' OR Tags LIKE '%<public-key>%' OR Tags LIKE '%<seed>%' OR Tags LIKE '%<utxo>%' OR Tags LIKE '%<nodes>%' OR Tags LIKE '%<consensus>%' OR Tags LIKE '%<multi-signature>%' OR Tags LIKE '%<backup>%' OR Tags LIKE '%<coinjoin>%' OR Tags LIKE '%<peers>%' OR Tags LIKE '%<hash>%' OR Tags LIKE '%<linux>%' OR Tags LIKE '%<ubuntu>%' OR Tags LIKE '%<wallet-recovery>%')
+    AND Tags NOT LIKE '%<altcoin>%'
+    AND Tags NOT LIKE '%<dogecoin>%'
+    AND Tags NOT LIKE '%<blockchain.info>%'
+    AND Tags NOT LIKE '%<ripple>%'
+    AND Tags NOT LIKE '%<litecoin>%'
+    AND Tags NOT LIKE '%<btce>%'
+    AND Tags NOT LIKE '%<zerocoin>%'
+    AND Tags NOT LIKE '%<multibit>%'
+    AND Tags NOT LIKE '%<cryptsy>%'
+    AND Tags NOT LIKE '%<armory>%'
+    AND Tags NOT LIKE '%<gambling>%'
+    AND Tags NOT LIKE '%<mtgox>%'
+    AND Tags NOT LIKE '%<altcoin-development>%'
+    AND Tags NOT LIKE '%<cryptonote>%'
+    AND Tags NOT LIKE '%<bitfinex>%'
+    AND Tags NOT LIKE '%<mycelium-wallet>%'
+    AND Tags NOT LIKE '%<monero>%'
+    AND Tags NOT LIKE '%<ethereum>%'
+    AND Tags NOT LIKE '%<zcash>%'
+    AND Tags NOT LIKE '%<xmr>%'
+    AND Tags NOT LIKE '%<coinbase.com>%'
+ORDER BY
+    Score DESC
