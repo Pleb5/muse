@@ -9,4 +9,4 @@ fi
 
 input_file="$1"
 
-sed -E "s/\bnsec[a-zA-Z0-9]{28}\b/**** # MODIFY ME!!!/g" "$input_file"
+sed -E 's/(nsec)([0-9ac-hj-np-z]{28})(.*)/\1**** # MODIFY ME!!!\3/g' "$input_file"
